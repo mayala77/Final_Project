@@ -1,0 +1,14 @@
+---
+
+title:  'Final Project'
+subtitle: 'INFO 523'
+author:
+- name: Student -  [Michael Ayala]
+  affiliation: [Student]
+- name: Instructor -  Cristian Román-Palacios
+  affiliation: School of Information, University of Arizona, Tucson, AZ
+tags: [R, RStudio, HW3]
+output: html_document
+
+---
+

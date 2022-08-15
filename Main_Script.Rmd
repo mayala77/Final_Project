@@ -122,7 +122,7 @@ F_Data <- filter(h_trn,LotArea < 50000 & MSZoning == 'RL' & HouseStyle =='1Story
 Lot_Area_vs_Sale_Price <- F_Data[, (colnames(F_Data) %in% c('LotArea','SalePrice'))]
 
 # Unsupervised Clustering of the Cost vs Lot Size based on Zoning and Single Story filtering 
-model=kmeans(Test5,5)
+model=kmeans(Lot_Area_vs_Sale_Price,5)
 clusplot(Lot_Area_vs_Sale_Price,model$cluster)
 clusplot(Lot_Area_vs_Sale_Price,model$cluster,color=T,shade=T)
 
@@ -163,7 +163,7 @@ R_Data <- filter(h_trn,LotArea < 50000 &
 Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price <- R_Data[, (colnames(R_Data) %in% c('LotArea','SalePrice'))]
 
 # Unsupervised Clustering of the Cost vs Lot Size based on Zoning and Single Story filtering 
-model=kmeans(Test7,5)
+model=kmeans(Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price,5)
 clusplot(Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price,model$cluster)
 clusplot(Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price,model$cluster,color=T,shade=T)
 ```

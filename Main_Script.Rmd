@@ -1,0 +1,206 @@
+---
+
+title:  'Final Project'
+subtitle: 'INFO 523'
+author:
+- name: Student -  [Michael Ayala]
+  affiliation: [Student]
+- name: Instructor -  Cristian Román-Palacios
+  affiliation: School of Information, University of Arizona, Tucson, AZ
+tags: [R, RStudio, HW3]
+output: html_document
+
+---
+
+### Project Spcifications
+association rules, price is a limiting fact, weighted association rules mining. 
+kmean: clustering analysis 
+independence, and be able to explain the information
+walk through code and explain it in detail
+what is the best price for the house based on the amenities 
+
+```{r}
+#install.packages("tidyverse")
+library('tidyverse')
+#install.packages("readr")
+library('readr')
+library("scales")
+library('arules')
+library('arulesViz')
+library('RColorBrewer')
+library('cluster')
+library('igraph')
+
+```
+
+
+```{r}
+#Load Housing data from folder structure to dataset 
+train <- read.csv("train.csv")
+test <- read.csv("test.csv")
+
+#House data variable select
+ # Train has a sale price
+h_trn <- train[, (colnames(train) %in%    
+                    c('LotArea','FullBath','HalfBath','BsmtFullBath',
+                      'HouseStyle','BedroomAbvGr','MSZoning','SalePrice'))]
+ # Test does NOT have a sale price
+h_tst <- test[, (colnames(test) %in%  
+                    c('LotArea','FullBath','HalfBath','BsmtFullBath',
+                      'HouseStyle','BedroomAbvGr','MSZoning','SalePrice'))]
+```
+
+
+```{r}
+#  Test the Lost Size vs Sale Price 
+Test1 <- ggplot(h_trn, aes(x=LotArea,y=SalePrice)) + geom_point() + theme_light() +
+                    labs(title = 'Cost Per Lot Size',
+                             x = 'Lot Area(sqr ft)',
+                             y = 'Sale Price($)') +
+                             scale_x_continuous(labels = comma_format(big.mark = ",")) + 
+                             scale_y_continuous(labels = comma_format(big.mark = ","))
+Test1
+
+```
+
+###MSZoning: Identifies the general zoning classification of the sale.
+        A - Agriculture
+        C - Commercial
+       FV	- Floating Village Residential
+        I	- Industrial
+       RH	- Residential High Density
+       RL	- Residential Low Density
+       RP	- Residential Low Density Park 
+       RM	- Residential Medium Density
+       
+```{r}
+# The most abundant Zoning type must be determined 
+Test2 <- ggplot(h_trn, aes(x=MSZoning,y=SalePrice)) + geom_point() + theme_light() + geom_jitter() +
+                    labs(title = 'Cost vs Zone Type',
+                             x = 'Zone Types',
+                             y = 'Sale Price($)',) +
+                             scale_y_continuous(labels = comma_format(big.mark = ","))
+                            
+Test2
+
+```
+
+###HouseStyle: Style of dwelling
+       1Story	- One story
+       1.5Fin	- One and one-half story: 2nd level finished
+       1.5Unf	- One and one-half story: 2nd level unfinished
+       2Story	- Two story
+       2.5Fin	- Two and one-half story: 2nd level finished
+       2.5Unf	- Two and one-half story: 2nd level unfinished
+       SFoyer	- Split Foyer
+         SLvl	- Split Level
+       
+```{r}
+# The House Style that appears most  
+Test3 <- ggplot(h_trn, aes(x=HouseStyle)) + geom_bar() + theme_light() +
+                    labs(title = 'Availability of Specific House Style',
+                             x = 'Styles of Houses',
+                             y = 'Amount in Area')
+Test3
+
+```
+
+```{r}
+# Test the House Style 1 Story vs Lot Price 
+Test4 <- ggplot(subset(h_trn,HouseStyle %in% '1Story'), aes(x=LotArea,y=SalePrice)) + geom_point() + theme_light() +
+                    labs(title = 'Single Story Lot Prices',
+                             x = 'Styles of Houses',
+                             y = 'Amount in Area')
+
+Test4
+```
+
+```{r}
+
+# Filter Data 
+F_Data <- filter(h_trn,LotArea < 50000 & MSZoning == 'RL' & HouseStyle =='1Story' & SalePrice < 600000)
+Lot_Area_vs_Sale_Price <- F_Data[, (colnames(F_Data) %in% c('LotArea','SalePrice'))]
+
+# Unsupervised Clustering of the Cost vs Lot Size based on Zoning and Single Story filtering 
+model=kmeans(Test5,5)
+clusplot(Lot_Area_vs_Sale_Price,model$cluster)
+clusplot(Lot_Area_vs_Sale_Price,model$cluster,color=T,shade=T)
+
+
+```
+
+#### 
+BsmtFullBath: Basement full bathrooms
+     Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
+    HalfBath: Half baths above grade
+    FullBath: Full bathrooms above grade
+
+
+```{r}
+# More fine Filtering (Bathroom & Bedroom Situation )
+
+Test6 <- h_trn[, (colnames(h_trn) %in% c('BsmtFullBath','FullBath','HalfBath','BedroomAbvGr'))]
+
+ggplot(data = Test6,
+       mapping = aes(x = BsmtFullBath, y = FullBath)) +
+  geom_point() +
+  facet_grid(rows = vars(HalfBath), cols =  vars(BedroomAbvGr)) + 
+  labs(title = 'Bedrooms')
+
+```
+
+```{r}
+
+# Filter Data 
+R_Data <- filter(h_trn,LotArea < 50000 & 
+                     MSZoning == 'RL' & 
+                   HouseStyle =='1Story' & 
+                     SalePrice < 600000 & 
+                 BedroomAbvGr == 3 & 
+                 BsmtFullBath == 1 & 
+                     FullBath == 2 & 
+                     HalfBath == 0)
+Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price <- R_Data[, (colnames(R_Data) %in% c('LotArea','SalePrice'))]
+
+# Unsupervised Clustering of the Cost vs Lot Size based on Zoning and Single Story filtering 
+model=kmeans(Test7,5)
+clusplot(Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price,model$cluster)
+clusplot(Bed_vs_Bath_Filter_Lot_Area_vs_Sale_Price,model$cluster,color=T,shade=T)
+```
+
+
+```{r}
+
+# The fitlered data without bathroom information is what we want to call out
+# We noticed that the 1Story is the focus of this task 
+
+T_Data <- train[, (colnames(train) %in%    
+                    c('LotArea','FullBath','HalfBath','BsmtFullBath',
+                      'HouseStyle','BedroomAbvGr','MSZoning','SalePrice'))]
+
+set.seed(5)
+appearance = list(default = "lhs", rhs = ("HouseStyle=1Story"))
+
+#Support of 25% 
+rules <- apriori(T_Data,parameter = list(supp = 0.25, conf = 0.1),appearance)
+
+inspect(rules)
+
+plot(rules,meausure=c("support","confidence"),shading = "lift")
+
+plot(rules, method = "graph")
+
+```
+
+```{r}
+
+#Support of 20% 
+rules2 <- apriori(T_Data,parameter = list(supp = 0.20, conf = 0.1),appearance)
+
+inspect(rules2)
+
+plot(rules2,meausure=c("support","confidence"),shading = "lift")
+
+plot(rules2, method = "graph")
+
+```

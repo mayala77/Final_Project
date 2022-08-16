@@ -17,7 +17,9 @@ association rules, price is a limiting fact, weighted association rules mining.
 kmean: clustering analysis 
 independence, and be able to explain the information
 walk through code and explain it in detail
-what is the best price for the house based on the amenities 
+
+Choosing specific housing parameters out of the data and determining what 
+is the most abundant, affordable, and types of housing?
 
 ```{r}
 #install.packages("tidyverse")
@@ -108,10 +110,11 @@ Test3
 ```{r}
 # Test the House Style 1 Story vs Lot Price 
 Test4 <- ggplot(subset(h_trn,HouseStyle %in% '1Story'), aes(x=LotArea,y=SalePrice)) + geom_point() + theme_light() +
-                    labs(title = 'Single Story Lot Prices',
-                             x = 'Styles of Houses',
-                             y = 'Amount in Area')
-
+                    labs(title = 'Single Story - Cost Per Lot Size ',
+                             x = 'Lot Area(sqr ft)',
+                             y = 'Sale Price($)') +
+                             scale_x_continuous(labels = comma_format(big.mark = ",")) + 
+                             scale_y_continuous(labels = comma_format(big.mark = ","))
 Test4
 ```
 
